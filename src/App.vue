@@ -4,6 +4,7 @@ import { computed } from 'vue';
 import Header from './components/Header.vue';
 import Sidebar from './components/Sidebar.vue';
 import Footer from './components/Footer.vue';
+import MembershipModal from './components/MembershipModal.vue';
 
 const route = useRoute();
 
@@ -33,6 +34,8 @@ const isStandalonePage = computed(() => {
     <template v-else>
       <router-view></router-view>
     </template>
+
+    <MembershipModal />
   </div>
 </template>
 

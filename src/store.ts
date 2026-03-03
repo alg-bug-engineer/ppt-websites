@@ -56,6 +56,11 @@ export const store = reactive({
   user: initialUser,
   lang: initialLang,
   
+  // UI Global State
+  ui: {
+    showMembershipModal: false,
+  },
+  
   templates: [] as Template[],
 
   // Translation helper
@@ -143,6 +148,36 @@ export const store = reactive({
     if (!path) return '';
     if (path.startsWith('http')) return path;
     return `${API_BASE.replace('/api', '')}${path}`;
+  },
+
+  async createPaymentOrder(params: { amount: string, title: string, itemType: 'ppt' | 'member', itemId?: number }) {
+    try {
+      const response = await fetch(`${API_BASE}/pay/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: params.amount,
+          title: params.title,
+          customerId: this.user.phone || 'guest',
+          customerEmail: '',
+          itemType: params.itemType,
+          itemId: params.itemId
+        })
+      });
+
+      const text = await response.text();
+      if (!response.ok) throw new Error(text || 'Server error');
+      
+      const data = JSON.parse(text);
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
+      } else {
+        throw new Error(data.error || 'No checkout URL');
+      }
+    } catch (error) {
+      console.error('[Store] Payment Error:', error);
+      throw error;
+    }
   },
 
   async addTemplate(template: Omit<Template, 'id' | 'viewCount' | 'downloadCount'>) {

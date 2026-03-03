@@ -18,6 +18,10 @@ const handleLogout = () => {
   router.push('/');
 };
 
+const handleUpgrade = () => {
+  store.ui.showMembershipModal = true;
+};
+
 const toggleLang = () => {
   store.setLang(store.lang === 'zh' ? 'en' : 'zh');
 };
@@ -58,8 +62,15 @@ const toggleLang = () => {
         </button>
 
         <div v-if="store.user.isLoggedIn" class="user-info">
-          <div class="user-name" :class="{ 'is-member': store.user.isMember }" @click="router.push('/profile')" style="cursor: pointer;">
-            <Crown v-if="store.user.isMember" :size="16" class="crown-icon" />
+          <!-- Member Status Badge / Upgrade Button -->
+          <div v-if="store.user.isMember" class="vip-badge">
+            <Crown :size="14" /> <span>{{ store.t('lifetimeMember') }}</span>
+          </div>
+          <button v-else class="upgrade-btn-link" @click="handleUpgrade">
+            <Crown :size="14" /> <span>{{ store.lang === 'zh' ? '升级会员' : 'Upgrade' }}</span>
+          </button>
+
+          <div class="user-name" @click="router.push('/profile')" style="cursor: pointer;">
             <span>{{ store.user.phone }}</span>
           </div>
           <button class="logout-btn" @click="handleLogout" :title="store.t('logout')">
@@ -93,9 +104,13 @@ const toggleLang = () => {
 .lang-toggle { display: flex; align-items: center; gap: 6px; background: none; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 12px; cursor: pointer; color: #64748b; font-size: 13px; font-weight: 600; transition: 0.2s; }
 .lang-toggle:hover { border-color: var(--primary-color); color: var(--primary-color); background-color: #f0fdfa; }
 
-.user-info { display: flex; align-items: center; gap: 16px; }
-.user-name { display: flex; align-items: center; gap: 6px; font-weight: 600; color: #333; font-size: 14px; }
-.user-name.is-member { color: #ea580c; }
+.user-info { display: flex; align-items: center; gap: 12px; }
+
+.vip-badge { display: flex; align-items: center; gap: 4px; background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; }
+.upgrade-btn-link { display: flex; align-items: center; gap: 4px; background: #1e293b; color: #fbbf24; border: none; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+.upgrade-btn-link:hover { background: #334155; transform: scale(1.05); }
+
+.user-name { font-weight: 600; color: #333; font-size: 14px; }
 .crown-icon { color: #fbbf24; }
 
 .logout-btn { background: none; border: none; color: #94a3b8; cursor: pointer; display: flex; align-items: center; padding: 4px; border-radius: 4px; transition: 0.2s; }

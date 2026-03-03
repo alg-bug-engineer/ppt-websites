@@ -39,6 +39,10 @@ const handleDownload = () => {
   showPayModal.value = true;
 };
 
+const openMembership = () => {
+  store.ui.showMembershipModal = true;
+};
+
 const isPaying = ref(false);
 
 const handlePay = async () => {
@@ -46,38 +50,14 @@ const handlePay = async () => {
   isPaying.value = true;
   
   try {
-    const amount = payType.value === 'member' ? '9.90' : displayPrice.value;
-    const title = payType.value === 'member' ? store.t('lifetimeMembership') : `Download PPT: ${props.template?.title}`;
-    
-    const response = await fetch('http://localhost:3001/api/pay/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        amount,
-        title,
-        customerId: store.user.phone || 'guest',
-        customerEmail: '',
-        itemType: payType.value === 'member' ? 'member' : 'ppt',
-        itemId: props.template?.id
-      })
+    await store.createPaymentOrder({
+      amount: displayPrice.value,
+      title: `Download PPT: ${props.template?.title}`,
+      itemType: 'ppt',
+      itemId: props.template?.id
     });
-
-    const text = await response.text();
-    if (!response.ok) {
-      throw new Error(text || 'Server response error');
-    }
-
-    const data = JSON.parse(text);
-    if (data.checkout_url) {
-      window.location.href = data.checkout_url;
-    } else {
-      alert(store.t('verificationFailed') + ': ' + (data.error || 'Unknown error'));
-    }
   } catch (error) {
-    console.error('Payment Error:', error);
-    alert('Payment system connection failed, please try again later');
+    alert(store.t('verificationFailed'));
   } finally {
     isPaying.value = false;
   }
@@ -131,7 +111,7 @@ watch(() => props.template, (newT) => {
             </div>
 
             <div class="action-buttons">
-              <div v-if="!store.user.isMember" class="member-card-mini" @click="payType = 'member'; showPayModal = true">
+              <div v-if="!store.user.isMember" class="member-card-mini" @click="openMembership">
                 <Crown :size="16" />
                 <div class="card-text">
                   <span class="card-title">{{ store.t('membershipPrice') }}</span>
@@ -148,42 +128,17 @@ watch(() => props.template, (newT) => {
       </div>
     </div>
 
-    <!-- Payment Modal (Now with Member Benefits) -->
+    <!-- Single Download Payment Modal -->
     <div v-if="showPayModal" class="pay-overlay" @click.self="showPayModal = false">
-      <div class="pay-card" :class="{ 'member-style': payType === 'member' }">
+      <div class="pay-card">
         <div class="pay-header">
-          <h3>{{ payType === 'member' ? store.t('lifetimeMembership') : store.t('paymentSuccessful') }}</h3>
+          <h3>{{ store.t('paymentSuccessful') }}</h3>
           <button class="close-pay" @click="showPayModal = false">×</button>
         </div>
         <div class="pay-body">
-          <div v-if="payType === 'member'" class="member-benefits">
-            <div class="benefit-item">
-              <Crown :size="20" color="#fbbf24" />
-              <div class="benefit-info">
-                <div class="benefit-title">{{ store.t('benefitDiscountTitle') }}</div>
-                <div class="benefit-desc">{{ store.t('benefitDiscountDesc') }}</div>
-              </div>
-            </div>
-            <div class="benefit-item">
-              <Download :size="20" color="#1fcdb6" />
-              <div class="benefit-info">
-                <div class="benefit-title">{{ store.t('benefitUnlimitedTitle') }}</div>
-                <div class="benefit-desc">{{ store.t('benefitUnlimitedDesc') }}</div>
-              </div>
-            </div>
-            <div class="benefit-item">
-              <X :size="20" color="#94a3b8" />
-              <div class="benefit-info">
-                <div class="benefit-title">{{ store.t('benefitDashboardTitle') }}</div>
-                <div class="benefit-desc">{{ store.t('benefitDashboardDesc') }}</div>
-              </div>
-            </div>
-          </div>
-
           <div class="pay-info-box">
-            <div class="pay-price">{{ store.t('amountDue') }}: <span>${{ payType === 'member' ? '9.90' : displayPrice }}</span></div>
-            <p v-if="payType === 'single'" class="pay-notice">{{ store.t('paymentNotice') }}</p>
-            <p v-else class="pay-notice">{{ store.t('lifetimeNotice') }}</p>
+            <div class="pay-price">{{ store.t('amountDue') }}: <span>${{ displayPrice }}</span></div>
+            <p class="pay-notice">{{ store.t('paymentNotice') }}</p>
           </div>
           
           <button class="confirm-pay-btn" @click="handlePay" :disabled="isPaying">
