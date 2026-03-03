@@ -6,7 +6,7 @@ export interface Template {
   price: number;
   image: string;
   categoryId: number;
-  downloadUrl: string;
+  pptFile: string;
   viewCount: number;
   downloadCount: number;
   screenshots: string[];
@@ -65,6 +65,12 @@ export const store = reactive({
 
   saveUserState() {
     localStorage.setItem('user_state', JSON.stringify(this.user));
+  },
+
+  getAssetUrl(path: string) {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    return `${API_BASE.replace('/api', '')}${path}`;
   },
 
   async addTemplate(template: Omit<Template, 'id' | 'viewCount' | 'downloadCount'>) {

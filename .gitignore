@@ -14,11 +14,12 @@ lerna-debug.log*
 .env.*
 !.env.example
 *.local
-
+*.env
 # Editor / OS
 .vscode/
 !.vscode/extensions.json
 .idea/
+paywith302-demo-main/
 .DS_Store
 *.suo
 *.ntvs*

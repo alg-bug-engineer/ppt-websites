@@ -45,7 +45,9 @@ const handlePay = async () => {
         amount,
         title,
         customerId: store.user.phone || 'guest',
-        customerEmail: ''
+        customerEmail: '',
+        itemType: payType.value === 'member' ? 'member' : 'ppt',
+        itemId: props.template?.id
       })
     });
     
@@ -95,9 +97,9 @@ watch(() => props.template, (newVal) => {
         <div class="main-content-scroll">
           <!-- Preview Images -->
           <div class="preview-images-section">
-            <img :src="template.image" :alt="template.title" class="main-preview" />
+            <img :src="store.getAssetUrl(template.image)" :alt="template.title" class="main-preview" />
             <div class="detail-images">
-               <img v-for="(img, i) in template.screenshots" :key="i" :src="img" alt="detail" />
+               <img v-for="(img, i) in template.screenshots" :key="i" :src="store.getAssetUrl(img)" alt="detail" />
             </div>
           </div>
         </div>
@@ -144,7 +146,7 @@ watch(() => props.template, (newVal) => {
         <div class="pay-body">
           <div class="pay-info-box">
             <div class="pay-price">应付金额: <span>¥{{ payType === 'member' ? '9.90' : displayPrice }}</span></div>
-            <p v-if="payType === 'single'" class="pay-notice">支付成功后将获得百度网盘下载地址</p>
+            <p v-if="payType === 'single'" class="pay-notice">支付成功后将立即获得 PPT 文件下载权限</p>
             <p v-else class="pay-notice">开通后立享全站 1折 下载特权</p>
           </div>
           <div class="pay-methods">

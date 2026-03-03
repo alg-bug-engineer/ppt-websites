@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { store } from '../store';
 import type { Template } from '../data';
 
 defineProps<{
@@ -9,7 +10,7 @@ defineProps<{
 <template>
   <div class="template-card">
     <div class="template-image">
-      <img :src="template.image" :alt="template.title" loading="lazy" />
+      <img :src="store.getAssetUrl(template.image)" :alt="template.title" loading="lazy" />
       <div class="overlay">
         <button class="preview-btn">预览</button>
       </div>

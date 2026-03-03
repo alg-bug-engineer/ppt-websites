@@ -10,28 +10,50 @@ const showAddForm = ref(false);
 const editingId = ref<number | null>(null);
 
 const newTemplate = ref({
+  id: 0,
   title: '',
   price: 0,
   image: '',
   categoryId: 1,
-  downloadUrl: '',
+  pptFile: '',
   screenshots: [] as string[],
 });
 
+const webhookUrl = ref('');
+
+const fetchWebhookUrl = async () => {
+  try {
+    const response = await fetch('http://localhost:3001/api/webhook-info');
+    const data = await response.json();
+    webhookUrl.value = data.url;
+  } catch (e) {
+    console.error('Failed to fetch webhook url', e);
+  }
+};
+
 const openAddModal = () => {
   editingId.value = null;
-  newTemplate.value = { title: '', price: 0, image: '', categoryId: 1, downloadUrl: '', screenshots: [] };
+  newTemplate.value = { 
+    id: Date.now(),
+    title: '', 
+    price: 0, 
+    image: '', 
+    categoryId: 1, 
+    pptFile: '', 
+    screenshots: [] 
+  };
   showAddForm.value = true;
 };
 
 const openEditModal = (t: any) => {
   editingId.value = t.id;
   newTemplate.value = {
+    id: t.id,
     title: t.title,
     price: t.price,
     image: t.image,
     categoryId: t.categoryId,
-    downloadUrl: t.downloadUrl,
+    pptFile: t.pptFile || '',
     screenshots: [...t.screenshots],
   };
   showAddForm.value = true;
@@ -43,19 +65,19 @@ const stats = computed(() => {
   return { totalViews, totalDownloads };
 });
 
-const uploadFile = async (file: File): Promise<string> => {
+const uploadFile = async (file: File, productId: number): Promise<{ url: string, filename: string }> => {
   const formData = new FormData();
   formData.append('file', file);
   try {
-    const response = await fetch('http://localhost:3001/api/upload', {
+    const response = await fetch(`http://localhost:3001/api/upload?id=${productId}`, {
       method: 'POST',
       body: formData,
     });
     const data = await response.json();
-    return data.url;
+    return { url: data.url, filename: data.filename };
   } catch (error) {
     console.error('Upload failed:', error);
-    alert('图片上传失败，请检查后端服务是否运行');
+    alert('文件上传失败，请检查后端服务是否运行');
     throw error;
   }
 };
@@ -63,7 +85,17 @@ const uploadFile = async (file: File): Promise<string> => {
 const handleMainImageUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files[0]) {
-    newTemplate.value.image = await uploadFile(target.files[0]);
+    const result = await uploadFile(target.files[0], newTemplate.value.id);
+    newTemplate.value.image = result.url;
+  }
+};
+
+const handlePPTUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files[0]) {
+    const result = await uploadFile(target.files[0], newTemplate.value.id);
+    newTemplate.value.pptFile = result.filename;
+    alert('PPT文件上传成功');
   }
 };
 
@@ -72,8 +104,8 @@ const handleScreenshotsUpload = async (event: Event) => {
   if (target.files) {
     const files = Array.from(target.files);
     for (const file of files) {
-      const url = await uploadFile(file);
-      newTemplate.value.screenshots.push(url);
+      const result = await uploadFile(file, newTemplate.value.id);
+      newTemplate.value.screenshots.push(result.url);
     }
   }
 };
@@ -83,34 +115,32 @@ const removeScreenshot = (index: number) => {
 };
 
 const handleAddTemplate = () => {
-  if (!newTemplate.value.title || !newTemplate.value.downloadUrl || !newTemplate.value.image) {
-    alert('请填写必要信息（标题、上传主图、网盘链接）');
+  if (!newTemplate.value.title || !newTemplate.value.pptFile || !newTemplate.value.image) {
+    alert('请填写必要信息（标题、上传主图、上传PPT文件）');
     return;
   }
 
+  const templateData = {
+    id: newTemplate.value.id,
+    title: newTemplate.value.title,
+    price: newTemplate.value.price,
+    image: newTemplate.value.image,
+    categoryId: Number(newTemplate.value.categoryId),
+    pptFile: newTemplate.value.pptFile,
+    screenshots: newTemplate.value.screenshots,
+  };
+
   if (editingId.value !== null) {
-    store.updateTemplate(editingId.value, {
-      title: newTemplate.value.title,
-      price: newTemplate.value.price,
-      image: newTemplate.value.image,
-      categoryId: Number(newTemplate.value.categoryId),
-      downloadUrl: newTemplate.value.downloadUrl,
-      screenshots: newTemplate.value.screenshots,
-    });
+    store.updateTemplate(editingId.value, templateData);
   } else {
-    store.addTemplate({
-      title: newTemplate.value.title,
-      price: newTemplate.value.price,
-      image: newTemplate.value.image,
-      categoryId: Number(newTemplate.value.categoryId),
-      downloadUrl: newTemplate.value.downloadUrl,
-      screenshots: newTemplate.value.screenshots,
-    });
+    store.addTemplate(templateData);
   }
   
   showAddForm.value = false;
-  newTemplate.value = { title: '', price: 0, image: '', categoryId: 1, downloadUrl: '', screenshots: [] };
+  newTemplate.value = { id: 0, title: '', price: 0, image: '', categoryId: 1, pptFile: '', screenshots: [] };
 };
+
+fetchWebhookUrl();
 
 const deleteTemplate = async (id: number) => {
   if (confirm('确定要删除这个商品吗？')) {
@@ -152,6 +182,10 @@ const handleLogout = () => {
       </header>
 
       <section v-if="activeTab === 'dashboard'" class="dashboard-section">
+        <div v-if="webhookUrl" class="webhook-info-box">
+          <div class="webhook-label">Webhook 回调地址 (302.AI 配置使用):</div>
+          <div class="webhook-url">{{ webhookUrl }}</div>
+        </div>
         <div class="stat-cards">
           <div class="stat-card">
             <BarChart3 class="icon view" />
@@ -207,17 +241,17 @@ const handleLogout = () => {
               <th>标题</th>
               <th>定价</th>
               <th>分类</th>
-              <th>网盘链接</th>
+              <th>PPT文件</th>
               <th>操作</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="t in store.templates" :key="t.id">
-              <td><img :src="t.image" class="thumb" /></td>
+              <td><img :src="store.getAssetUrl(t.image)" class="thumb" /></td>
               <td>{{ t.title }}</td>
               <td>¥{{ t.price }}</td>
               <td>{{ t.categoryId }}</td>
-              <td><span class="url-text">{{ t.downloadUrl }}</span></td>
+              <td><span class="url-text">{{ t.pptFile }}</span></td>
               <td class="actions-cell">
                 <button class="edit-btn" @click="openEditModal(t)"><Edit3 :size="16" /></button>
                 <button class="delete-btn" @click="deleteTemplate(t.id)"><Trash2 :size="16" /></button>
@@ -246,7 +280,7 @@ const handleLogout = () => {
             <div class="upload-box" @click="($refs as any).mainImageInput.click()">
               <input ref="mainImageInput" type="file" accept="image/*" hidden @change="handleMainImageUpload" />
               <div v-if="newTemplate.image" class="preview-wrapper">
-                <img :src="newTemplate.image" class="upload-preview" />
+                <img :src="store.getAssetUrl(newTemplate.image)" class="upload-preview" />
                 <div class="change-overlay">更换图片</div>
               </div>
               <div v-else class="upload-placeholder">
@@ -272,15 +306,26 @@ const handleLogout = () => {
           </div>
 
           <div class="form-group full">
-            <label>百度网盘下载链接 *</label>
-            <input v-model="newTemplate.downloadUrl" type="text" placeholder="粘贴完整的百度网盘分享链接及提取码" />
+            <label>上传 PPT 文件 *</label>
+            <div class="ppt-upload-box" @click="($refs as any).pptFileInput.click()">
+              <input ref="pptFileInput" type="file" accept=".ppt,.pptx" hidden @change="handlePPTUpload" />
+              <div v-if="newTemplate.pptFile" class="ppt-file-info">
+                <FileUp :size="24" />
+                <span>{{ newTemplate.pptFile }}</span>
+                <span class="change-hint">(点击更换)</span>
+              </div>
+              <div v-else class="upload-placeholder">
+                <Upload :size="32" />
+                <span>点击上传 PPT 源文件</span>
+              </div>
+            </div>
           </div>
 
           <div class="form-group full">
             <label>上传详情页展示截图</label>
             <div class="screenshots-grid">
               <div v-for="(img, idx) in newTemplate.screenshots" :key="idx" class="screenshot-item">
-                <img :src="img" />
+                <img :src="store.getAssetUrl(img)" />
                 <button class="remove-img" @click="removeScreenshot(idx)">×</button>
               </div>
               <div class="add-screenshot-box" @click="($refs as any).screenshotInput.click()">
@@ -317,6 +362,11 @@ const handleLogout = () => {
 .add-btn { background-color: #1fcdb6; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
 
 .stat-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 40px; }
+
+.webhook-info-box { background-color: #fff; padding: 16px 24px; border-radius: 12px; margin-bottom: 24px; border-left: 4px solid #1fcdb6; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.webhook-label { font-size: 12px; color: #64748b; margin-bottom: 4px; font-weight: 600; }
+.webhook-url { font-family: monospace; font-size: 14px; color: #1e293b; word-break: break-all; }
+
 .stat-card { background-color: #fff; padding: 24px; border-radius: 12px; display: flex; align-items: center; gap: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 .stat-card .icon { width: 48px; height: 48px; padding: 10px; border-radius: 12px; }
 .icon.view { background-color: #f0fdf4; color: #22c55e; }
@@ -349,6 +399,12 @@ const handleLogout = () => {
 /* Upload Styles */
 .upload-box { border: 2px dashed #e2e8f0; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; overflow: hidden; position: relative; }
 .upload-box:hover { border-color: #1fcdb6; background-color: #f0fdfa; }
+
+.ppt-upload-box { border: 2px dashed #e2e8f0; border-radius: 12px; padding: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; margin-bottom: 10px; }
+.ppt-upload-box:hover { border-color: #1fcdb6; background-color: #f0fdfa; }
+.ppt-file-info { display: flex; align-items: center; gap: 12px; color: #1e293b; font-weight: 600; }
+.change-hint { font-size: 12px; color: #64748b; font-weight: normal; }
+
 .upload-placeholder { display: flex; flex-direction: column; align-items: center; gap: 8px; color: #94a3b8; }
 .preview-wrapper { width: 100%; height: 100%; position: relative; }
 .upload-preview { width: 100%; height: 100%; object-fit: cover; }
