@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { store } from '../store';
+import { categories as allCategories } from '../data';
 import { 
   GraduationCap, 
   Lightbulb, 
@@ -12,14 +13,18 @@ import {
 
 const router = useRouter();
 
-const categories = [
-  { id: 1, nameKey: 'teachingInnovation', icon: GraduationCap },
-  { id: 2, nameKey: 'teachingAbility', icon: Lightbulb },
-  { id: 3, nameKey: 'youngTeachers', icon: BookMarked },
-  { id: 4, nameKey: 'otherCompetitions', icon: GraduationCap },
-  { id: 7, nameKey: 'thesisDefense', icon: FileText },
-  { id: 8, nameKey: 'freeResources', icon: Gift },
-] as const;
+// Filter categories for sidebar (exclude Premium Customization id:6 as it is in Header)
+const sidebarCategories = allCategories.filter(c => c.id !== 6).map(c => {
+  const iconMap: Record<number, any> = {
+    1: GraduationCap,
+    2: Lightbulb,
+    3: BookMarked,
+    4: GraduationCap,
+    7: FileText,
+    8: Gift
+  };
+  return { ...c, icon: iconMap[c.id] || GraduationCap };
+});
 
 const navigateToCategory = (id: number) => {
   router.push(`/category/${id}`);
@@ -31,13 +36,13 @@ const navigateToCategory = (id: number) => {
     <div class="sidebar-content">
       <ul class="category-list">
         <li 
-          v-for="cat in categories" 
+          v-for="cat in sidebarCategories" 
           :key="cat.id" 
           class="category-item"
           @click="navigateToCategory(cat.id)"
         >
           <component :is="cat.icon" :size="20" class="category-icon" />
-          <span class="category-name">{{ store.t(cat.nameKey) }}</span>
+          <span class="category-name">{{ store.t(cat.nameKey as any) }}</span>
         </li>
       </ul>
     </div>

@@ -22,7 +22,7 @@ export interface User {
 
 export type Lang = 'zh' | 'en';
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = (import.meta.env.VITE_API_BASE as string) || 'http://localhost:3001/api';
 const MEMBER_DISCOUNT = 0.5; // Sync with .env logic via API
 
 // Initialize lang from localStorage
@@ -55,6 +55,7 @@ try {
 export const store = reactive({
   user: initialUser,
   lang: initialLang,
+  apiBase: API_BASE,
   
   // UI Global State
   ui: {

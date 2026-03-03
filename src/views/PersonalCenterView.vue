@@ -25,7 +25,7 @@ const handleChangePassword = async () => {
   
   isSubmitting.value = true;
   try {
-    const response = await fetch('http://localhost:3001/api/user/change-password', {
+    const response = await fetch(`${store.apiBase}/user/change-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -55,7 +55,7 @@ const handleLogout = () => {
 };
 
 const triggerDownload = (item: any) => {
-  window.open(`http://localhost:3001/api/templates/${item.itemId}/download`, '_blank');
+  window.open(`${store.apiBase}/templates/${item.itemId}/download`, '_blank');
 };
 
 onMounted(async () => {

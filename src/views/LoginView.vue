@@ -32,7 +32,7 @@ const handleAuth = async () => {
   loading.value = true;
   try {
     const endpoint = isLogin.value ? 'login' : 'register';
-    const response = await fetch(`http://localhost:3001/api/${endpoint}`, {
+    const response = await fetch(`${store.apiBase}/${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone: phone.value, password: password.value }),

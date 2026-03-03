@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { store } from '../store';
+import { categories } from '../data';
 import { LayoutDashboard, FileUp, List, BarChart3, Plus, Trash2, LogOut, Upload, Edit3 } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -23,7 +24,7 @@ const webhookUrl = ref('');
 
 const fetchWebhookUrl = async () => {
   try {
-    const response = await fetch('http://localhost:3001/api/webhook-info');
+    const response = await fetch(`${store.apiBase}/webhook-info`);
     const data = await response.json();
     webhookUrl.value = data.url;
   } catch (e) {
@@ -69,7 +70,7 @@ const uploadFile = async (file: File, productId: number): Promise<{ url: string,
   const formData = new FormData();
   formData.append('file', file);
   try {
-    const response = await fetch(`http://localhost:3001/api/upload?id=${productId}`, {
+    const response = await fetch(`${store.apiBase}/upload?id=${productId}`, {
       method: 'POST',
       body: formData,
     });
@@ -298,13 +299,9 @@ const handleLogout = () => {
           <div class="form-group">
             <label>Category</label>
             <select v-model="newTemplate.categoryId">
-              <option value="1">Teaching Innovation</option>
-              <option value="2">Teaching Ability</option>
-              <option value="3">Young Teachers</option>
-              <option value="4">Other Competitions</option>
-              <option value="6">Premium Customization</option>
-              <option value="7">Thesis Defense</option>
-              <option value="8">Free Resources</option>
+              <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+                {{ store.t(cat.nameKey as any) }}
+              </option>
             </select>
           </div>
 

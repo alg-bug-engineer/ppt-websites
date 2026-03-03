@@ -9,7 +9,7 @@ const password = ref('');
 const error = ref('');
 
 const handleAdminLogin = () => {
-  if (username.value === 'wwlsm' && password.value === 'Zl161829@@') {
+  if (username.value === (import.meta.env.VITE_ADMIN_USERNAME || 'admin') && password.value === (import.meta.env.VITE_ADMIN_PASSWORD || 'admin_password')) {
     localStorage.setItem('isAdminAuthenticated', 'true');
     router.push('/admin');
   } else {

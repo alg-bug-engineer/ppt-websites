@@ -14,19 +14,7 @@ const categoryId = computed(() => Number(route.params.id));
 const categoryName = computed(() => {
   const cat = categories.find(c => c.id === categoryId.value);
   if (!cat) return store.t('noTemplatesFound');
-  
-  // Map ID to translation key
-  const keyMap: Record<number, any> = {
-    1: 'teachingInnovation',
-    2: 'teachingAbility',
-    3: 'youngTeachers',
-    4: 'otherCompetitions',
-    6: 'premiumCustomization',
-    7: 'thesisDefense',
-    8: 'freeResources'
-  };
-  
-  return store.t(keyMap[cat.id] || 'popularTemplates');
+  return store.t(cat.nameKey as any);
 });
 
 const filteredTemplates = computed(() => {

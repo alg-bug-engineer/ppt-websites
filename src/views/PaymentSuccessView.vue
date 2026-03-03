@@ -22,14 +22,14 @@ const handleDownload = () => {
   if (downloadUrl.value) {
     const fullUrl = downloadUrl.value.startsWith('http') 
       ? downloadUrl.value 
-      : `http://localhost:3001${downloadUrl.value}`;
+      : `${store.apiBase}${downloadUrl.value}`;
     window.open(fullUrl, '_blank');
   }
 };
 
 const checkStatus = async () => {
   try {
-    const response = await fetch(`http://localhost:3001/api/pay/status/${checkoutId}`);
+    const response = await fetch(`${store.apiBase}/pay/status/${checkoutId}`);
     const data = await response.json();
     
     if (response.ok && (data.status === 'paid' || data.payment_status === 1)) {

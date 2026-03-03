@@ -202,9 +202,8 @@ app.get('/api/templates/:id/download', (req, res) => {
 // --- Payment ---
 
 app.get('/api/webhook-info', (req, res) => {
-  const host = req.get('host');
-  const protocol = req.protocol;
-  res.json({ url: `${protocol}://${host}/api/payment/checkout` });
+  const baseUrl = process.env.PUBLIC_URL || `${req.protocol}://${req.get('host')}`;
+  res.json({ url: `${baseUrl}/api/payment/checkout` });
 });
 
 app.get('/api/pay/mock-gate', (req, res) => {

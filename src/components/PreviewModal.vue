@@ -31,7 +31,7 @@ const handleDownload = () => {
   
   if (isAlreadyPurchased.value) {
     // Already purchased, trigger download directly
-    window.open(`http://localhost:3001/api/templates/${props.template?.id}/download`, '_blank');
+    window.open(`${store.apiBase}/templates/${props.template?.id}/download`, '_blank');
     return;
   }
   
@@ -66,7 +66,7 @@ const handlePay = async () => {
 // Auto-track view count when modal opens
 watch(() => props.template, (newT) => {
   if (newT) {
-    fetch(`http://localhost:3001/api/templates/${newT.id}/view`, { method: 'POST' });
+    fetch(`${store.apiBase}/templates/${newT.id}/view`, { method: 'POST' });
   }
 });
 </script>
