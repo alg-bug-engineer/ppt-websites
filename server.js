@@ -15,6 +15,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 3001;
+const PUBLIC_URL = process.env.PUBLIC_URL || `http://localhost:${port}`;
 const IS_DEBUG = process.env.IS_DEBUG === 'true';
 const MEMBER_DISCOUNT = parseFloat(process.env.MEMBER_DISCOUNT || '0.5');
 
@@ -252,7 +253,7 @@ app.post('/api/pay/create', async (req, res) => {
   saveOrders(orders);
 
   if (IS_DEBUG) {
-    const mockCheckoutUrl = `http://localhost:${port}/api/pay/mock-gate?order_id=${orderId}&suc_url=${encodeURIComponent(req.headers.origin + '/payment-success')}`;
+    const mockCheckoutUrl = `${PUBLIC_URL}/api/pay/mock-gate?order_id=${orderId}&suc_url=${encodeURIComponent(req.headers.origin + '/payment-success')}`;
     console.log(`[Payment] [DEBUG] Bypassing real payment. Mock URL: ${mockCheckoutUrl}`);
     return res.json({ checkout_url: mockCheckoutUrl, id: orderId });
   }
@@ -463,6 +464,6 @@ app.post('/api/login', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`[${new Date().toISOString()}] Server running at http://localhost:${port}`);
-  console.log(`[${new Date().toISOString()}] Webhook URL: http://localhost:${port}/api/payment/checkout`);
+  console.log(`[${new Date().toISOString()}] Server running at ${PUBLIC_URL}`);
+  console.log(`[${new Date().toISOString()}] Webhook URL: ${PUBLIC_URL}/api/payment/checkout`);
 });
