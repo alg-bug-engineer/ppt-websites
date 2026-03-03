@@ -22,7 +22,7 @@ const handleDownload = () => {
   if (downloadUrl.value) {
     const fullUrl = downloadUrl.value.startsWith('http') 
       ? downloadUrl.value 
-      : `${store.apiBase}${downloadUrl.value}`;
+      : `${store.apiBase}${downloadUrl.value.startsWith('/') ? '' : '/'}${downloadUrl.value}`;
     window.open(fullUrl, '_blank');
   }
 };

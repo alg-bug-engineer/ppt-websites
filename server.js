@@ -430,7 +430,7 @@ app.get('/api/pay/status/:id', async (req, res) => {
     if (itemId) {
       const templates = getTemplates();
       const template = templates.find(t => t.id === parseInt(itemId));
-      if (template) downloadUrl = `/api/templates/${template.id}/download`;
+      if (template) downloadUrl = `/templates/${template.id}/download`;
     }
 
     return res.json({ 
