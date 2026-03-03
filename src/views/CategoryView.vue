@@ -12,7 +12,21 @@ const selectedTemplate = ref<Template | null>(null);
 
 const categoryId = computed(() => Number(route.params.id));
 const categoryName = computed(() => {
-  return categories.find(c => c.id === categoryId.value)?.name || '未知分类';
+  const cat = categories.find(c => c.id === categoryId.value);
+  if (!cat) return store.t('noTemplatesFound');
+  
+  // Map ID to translation key
+  const keyMap: Record<number, any> = {
+    1: 'teachingInnovation',
+    2: 'teachingAbility',
+    3: 'youngTeachers',
+    4: 'otherCompetitions',
+    6: 'premiumCustomization',
+    7: 'thesisDefense',
+    8: 'freeResources'
+  };
+  
+  return store.t(keyMap[cat.id] || 'popularTemplates');
 });
 
 const filteredTemplates = computed(() => {
@@ -27,12 +41,12 @@ const handleOpenModal = (template: Template) => {
 <template>
   <div class="category-view">
     <div class="breadcrumb">
-      首页 / 分类 / {{ categoryName }}
+      {{ store.t('navHome') }} / {{ categoryName }}
     </div>
     
     <div class="section-header">
       <h2 class="section-title">{{ categoryName }}</h2>
-      <div class="stats">共 {{ filteredTemplates.length }} 个模板</div>
+      <div class="stats">{{ store.t('total') }} {{ filteredTemplates.length }} {{ store.t('items') }}</div>
     </div>
 
     <div v-if="filteredTemplates.length > 0" class="template-grid">
@@ -45,7 +59,7 @@ const handleOpenModal = (template: Template) => {
     </div>
     
     <div v-else class="empty-state">
-      <p>该分类下暂无模板，敬请期待...</p>
+      <p>{{ store.t('noTemplatesFound') }}</p>
     </div>
 
     <PreviewModal 

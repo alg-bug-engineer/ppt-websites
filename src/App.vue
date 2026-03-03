@@ -8,7 +8,7 @@ import Footer from './components/Footer.vue';
 const route = useRoute();
 
 const isStandalonePage = computed(() => {
-  return ['login', 'admin', 'admin-login'].includes(route.name as string);
+  return ['login', 'admin', 'admin-login', 'profile', 'payment-success'].includes(route.name as string);
 });
 </script>
 

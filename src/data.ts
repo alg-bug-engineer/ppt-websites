@@ -7,14 +7,13 @@ export interface Category {
 }
 
 export const categories: Category[] = [
-  { id: 1, name: '教学创新大赛' },
-  { id: 2, name: '教学能力大赛' },
-  { id: 3, name: '高校青教赛' },
-  { id: 4, name: '其他教学竞赛' },
-  { id: 5, name: '更多分类' },
-  { id: 6, name: '高端PPT定制' },
-  { id: 7, name: '毕业论文答辩' },
-  { id: 8, name: '免费专区' },
+  { id: 1, name: 'Teaching Innovation' },
+  { id: 2, name: 'Teaching Ability' },
+  { id: 3, name: 'Young Teachers' },
+  { id: 4, name: 'Other Competitions' },
+  { id: 6, name: 'Premium Customization' },
+  { id: 7, name: 'Thesis Defense' },
+  { id: 8, name: 'Free Resources' },
 ];
 
 export const sampleTemplates: Template[] = [];

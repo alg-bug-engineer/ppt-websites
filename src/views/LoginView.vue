@@ -16,16 +16,16 @@ const toggleMode = () => {
   password.value = '';
 };
 
-// Simple phone regex validation (Chinese mobile)
-const validatePhone = (p: string) => /^1[3-9]\d{9}$/.test(p);
+// Relaxed validation for international use
+const validatePhone = (p: string) => p.length >= 5;
 
 const handleAuth = async () => {
   if (!validatePhone(phone.value)) {
-    alert('请输入正确的11位手机号');
+    alert(store.t('phoneNumber'));
     return;
   }
   if (password.value.length < 6) {
-    alert('密码长度不能小于6位');
+    alert(store.t('passwordMinChars'));
     return;
   }
 
@@ -44,15 +44,15 @@ const handleAuth = async () => {
         store.login(data.phone, data.isMember);
         router.push('/');
       } else {
-        alert('注册成功，请使用新账号登录');
+        alert(store.t('userRegistration') + ' Success, please login');
         isLogin.value = true;
         password.value = '';
       }
     } else {
-      alert(data.error || '操作失败');
+      alert(data.error || 'Operation failed');
     }
   } catch (err) {
-    alert('网络连接错误，请检查服务器状态');
+    alert('Network error, please check server status');
   } finally {
     loading.value = false;
   }
@@ -64,12 +64,12 @@ const handleAuth = async () => {
     <div class="login-card">
       <div class="back-home" @click="router.push('/')">
         <ArrowLeft :size="20" />
-        <span>返回首页</span>
+        <span>{{ store.t('backToHome') }}</span>
       </div>
       
       <div class="auth-header">
-        <h2 class="logo-text">芝士AI吃鱼-PPT</h2>
-        <p class="subtitle">{{ isLogin ? '账号登录' : '新用户注册' }}</p>
+        <h2 class="logo-text">{{ store.t('siteTitle') }}</h2>
+        <p class="subtitle">{{ isLogin ? store.t('accountLogin') : store.t('userRegistration') }}</p>
       </div>
 
       <div class="form-container">
@@ -78,8 +78,7 @@ const handleAuth = async () => {
           <input 
             v-model="phone" 
             type="tel" 
-            placeholder="请输入手机号" 
-            maxlength="11"
+            :placeholder="store.t('phoneNumber')" 
             :disabled="loading"
           />
         </div>
@@ -89,7 +88,7 @@ const handleAuth = async () => {
           <input 
             v-model="password" 
             type="password" 
-            :placeholder="isLogin ? '请输入密码' : '请设置密码(不少于6位)'" 
+            :placeholder="isLogin ? store.t('password') : store.t('setPassword')" 
             :disabled="loading"
             @keyup.enter="handleAuth"
           />
@@ -97,17 +96,17 @@ const handleAuth = async () => {
 
         <button class="auth-btn" :disabled="loading" @click="handleAuth">
           <Loader2 v-if="loading" class="spinner" :size="20" />
-          {{ isLogin ? '立即登录' : '立即注册' }}
+          {{ isLogin ? store.t('loginNow') : store.t('registerNow') }}
         </button>
 
         <div class="switch-mode">
-          {{ isLogin ? '还没有账号？' : '已有账号？' }}
-          <span @click="toggleMode">{{ isLogin ? '立即注册' : '去登录' }}</span>
+          {{ isLogin ? store.t('noAccount') : store.t('haveAccount') }}
+          <span @click="toggleMode">{{ isLogin ? store.t('registerNow') : store.t('loginNow') }}</span>
         </div>
       </div>
 
       <div class="tips">
-        注册即代表您同意《服务协议》与《隐私政策》
+        {{ store.t('registrationAgreement') }}
       </div>
     </div>
   </div>

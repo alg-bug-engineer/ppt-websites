@@ -16,8 +16,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3001;
 const IS_DEBUG = process.env.IS_DEBUG === 'true';
+const MEMBER_DISCOUNT = parseFloat(process.env.MEMBER_DISCOUNT || '0.5');
 
-console.log(`[System] Backend started. Port: ${port}, IS_DEBUG: ${IS_DEBUG}`);
+console.log(`[System] Backend started. Port: ${port}, Member Discount: ${MEMBER_DISCOUNT}`);
 
 // --- Proxy Configuration ---
 const proxyUrl = process.env.https_proxy || process.env.http_proxy || '';
@@ -81,6 +82,41 @@ const upload = multer({ storage: storage });
 app.use('/data/uploads', express.static(uploadDir));
 
 // --- API Endpoints ---
+
+// Get User Profile and Download History
+app.get('/api/user/profile', (req, res) => {
+  const { phone } = req.query;
+  if (!phone) return res.status(400).json({ error: 'Missing phone' });
+
+  const users = getUsers();
+  const user = users.find(u => u.phone === phone);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+
+  const orders = getOrders();
+  // Only return download history for members (regular users don't have permanent rights)
+  const myDownloads = user.isMember 
+    ? orders.filter(o => o.customerId === phone && o.status === 'paid' && o.itemType === 'ppt')
+    : [];
+
+  res.json({
+    phone: user.phone,
+    isMember: !!user.isMember,
+    downloads: myDownloads
+  });
+});
+
+// Change Password
+app.post('/api/user/change-password', (req, res) => {
+  const { phone, oldPassword, newPassword } = req.body;
+  const users = getUsers();
+  const userIndex = users.findIndex(u => u.phone === phone && u.password === oldPassword);
+
+  if (userIndex === -1) return res.status(401).json({ error: 'Invalid current password' });
+
+  users[userIndex].password = newPassword;
+  saveUsers(users);
+  res.json({ success: true, message: 'Password updated successfully' });
+});
 
 // Generic upload endpoint that supports grouping by product ID
 app.post('/api/upload', upload.single('file'), (req, res) => {
@@ -297,7 +333,7 @@ app.post('/api/pay/create', async (req, res) => {
   }
 });
 
-// Webhook for 302.ai (更新以符合新规范)
+// Webhook for 302.ai
 app.post('/api/payment/checkout', async (req, res) => {
   const body = req.body;
   const headers = req.headers;
@@ -307,7 +343,7 @@ app.post('/api/payment/checkout', async (req, res) => {
   console.log('[Webhook] Headers:', JSON.stringify(headers, null, 2));
   console.log('[Webhook] Body:', JSON.stringify(body, null, 2));
 
-  // 规范提到签名可能在 header 的 302_signature 中
+  // Signature could be in header '302_signature'
   const signature = headers['302_signature'] || body.signature;
   console.log(`[Webhook] Extracted Signature: ${signature}`);
 
@@ -349,6 +385,7 @@ app.post('/api/payment/checkout', async (req, res) => {
           if (userIndex !== -1) {
             users[userIndex].isMember = true;
             saveUsers(users);
+            console.log(`[Webhook] User ${order.customerId} is now a MEMBER.`);
           }
         }
         saveOrders(orders);
@@ -368,46 +405,62 @@ app.post('/api/payment/checkout', async (req, res) => {
 
 app.get('/api/pay/status/:id', async (req, res) => {
   const orderId = req.params.id;
+  const { phone } = req.query; 
   const orders = getOrders();
+  const users = getUsers();
+  
+  const user = users.find(u => u.phone === phone);
+  const isUserMember = !!user?.isMember;
+
   const order = orders.find(o => o.id === orderId || o.paymentOrder === orderId);
+  
+  // Check for repeat download privilege
+  let hasPurchasedBefore = false;
+  if (phone && isUserMember && order?.itemType === 'ppt') {
+    // Only members enjoy repeat download rights from history
+    hasPurchasedBefore = orders.some(o => o.customerId === phone && o.itemId === order.itemId && o.status === 'paid');
+  }
 
-  if (!order) return res.status(404).json({ error: 'Order not found' });
+  if (!order && !hasPurchasedBefore) return res.status(404).json({ error: 'Order not found' });
 
-  if (order.status === 'paid') {
+  // Success condition: current order paid, or user is member and has purchased before
+  if (order?.status === 'paid' || hasPurchasedBefore) {
     let downloadUrl = '';
-    if (order.itemType === 'ppt') {
+    const itemId = order ? order.itemId : req.query.itemId;
+    if (itemId) {
       const templates = getTemplates();
-      const template = templates.find(t => t.id === parseInt(order.itemId));
+      const template = templates.find(t => t.id === parseInt(itemId));
       if (template) downloadUrl = `/api/templates/${template.id}/download`;
     }
 
     return res.json({ 
       status: 'paid', 
       payment_status: 1, 
-      itemType: order.itemType, 
-      itemId: order.itemId,
-      metadata: { title: order.title, downloadUrl: downloadUrl }
+      itemType: order?.itemType || 'ppt', 
+      itemId: itemId,
+      isMember: isUserMember,
+      metadata: { title: order?.title || 'Purchased Item', downloadUrl: downloadUrl }
     });
   }
 
-  res.json({ status: order.status, metadata: { title: order.title } });
+  res.json({ status: order?.status, metadata: { title: order?.title } });
 });
 
 // --- Auth ---
 app.post('/api/register', (req, res) => {
   const { phone, password } = req.body;
   const users = getUsers();
-  if (users.find(u => u.phone === phone)) return res.status(400).json({ error: '已注册' });
+  if (users.find(u => u.phone === phone)) return res.status(400).json({ error: 'User already registered' });
   users.push({ phone, password, isMember: false });
   saveUsers(users);
-  res.status(201).json({ message: '成功' });
+  res.status(201).json({ message: 'Success' });
 });
 
 app.post('/api/login', (req, res) => {
   const { phone, password } = req.body;
   const user = getUsers().find(u => u.phone === phone && u.password === password);
-  if (!user) return res.status(401).json({ error: '错误' });
-  res.json({ phone: user.phone, isMember: user.isMember, message: '成功' });
+  if (!user) return res.status(401).json({ error: 'Invalid phone or password' });
+  res.json({ phone: user.phone, isMember: user.isMember, message: 'Success' });
 });
 
 app.listen(port, () => {

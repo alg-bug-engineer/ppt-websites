@@ -26,8 +26,8 @@ const handleOpenModal = (template: Template) => {
 <template>
   <div class="search-view">
     <div class="search-info">
-      <h2 class="search-title">搜索结果: "{{ searchQuery }}"</h2>
-      <div class="stats">找到 {{ searchResults.length }} 个相关模板</div>
+      <h2 class="search-title">{{ store.t('searchResult') }}: "{{ searchQuery }}"</h2>
+      <div class="stats">{{ store.t('total') }} {{ searchResults.length }} {{ store.t('matchingTemplates') }}</div>
     </div>
 
     <div v-if="searchResults.length > 0" class="template-grid">
@@ -41,8 +41,8 @@ const handleOpenModal = (template: Template) => {
     
     <div v-else class="empty-state">
       <div class="empty-icon">🔍</div>
-      <p>抱歉，未找到与 "{{ searchQuery }}" 相关的模板</p>
-      <p class="suggestion">尝试换个关键词，如“教学”、“创新”或“答辩”</p>
+      <p>{{ store.t('noTemplatesFound') }} for "{{ searchQuery }}"</p>
+      <p class="suggestion">{{ store.t('tryDifferentKeywords') }}</p>
     </div>
 
     <PreviewModal 

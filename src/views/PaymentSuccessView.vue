@@ -12,7 +12,7 @@ const checkoutId = (route.query.checkout_id || route.query.order_id || route.que
 
 const isLoading = ref(true);
 const status = ref<'success' | 'failed' | 'checking'>('checking');
-const message = ref('正在验证支付状态...');
+const message = ref(store.t('verifyingPayment'));
 const orderTitle = ref('');
 const downloadUrl = ref('');
 const itemType = ref('');
@@ -34,16 +34,17 @@ const checkStatus = async () => {
     
     if (response.ok && (data.status === 'paid' || data.payment_status === 1)) {
       status.value = 'success';
-      message.value = '支付成功！感谢您的支持。';
-      orderTitle.value = data.metadata?.title || '订单支付';
+      message.value = store.t('paymentThankYou');
+      orderTitle.value = data.metadata?.title || store.t('orderId');
       downloadUrl.value = data.metadata?.downloadUrl || '';
       itemType.value = data.itemType || '';
       itemId.value = data.itemId || '';
       
-      // Update store based on what was bought
-      if (itemType.value === 'member' || orderTitle.value.includes('开通永久会员')) {
-        store.becomeMember();
-        // Redirect to home after 3 seconds for member
+      // Sync local user state
+      await store.fetchUserProfile();
+
+      // If membership, redirect to home after 3s
+      if (itemType.value === 'member' || orderTitle.value.toLowerCase().includes('member')) {
         setTimeout(() => {
            router.push('/');
         }, 3000);
@@ -64,7 +65,7 @@ onMounted(async () => {
   if (!checkoutId) {
     console.error('No payment ID found in URL parameters.');
     status.value = 'failed';
-    message.value = '无效的支付请求 (缺少订单ID)';
+    message.value = 'Invalid payment request (Missing Order ID)';
     isLoading.value = false;
     return;
   }
@@ -82,7 +83,7 @@ onMounted(async () => {
       setTimeout(poll, 2000);
     } else {
       status.value = 'failed';
-      message.value = '支付未完成或验证超时，请稍后刷新页面查看状态';
+      message.value = 'Payment incomplete or verification timed out. Please refresh to check status.';
       isLoading.value = false;
     }
   };
@@ -100,36 +101,36 @@ onMounted(async () => {
 
     <div v-else-if="status === 'success'" class="status-card success">
       <CheckCircle :size="80" color="#1fcdb6" />
-      <h1>支付成功</h1>
+      <h1>{{ store.t('paymentSuccessful') }}</h1>
       <p class="order-info">{{ orderTitle }}</p>
       
       <div v-if="itemType === 'ppt'" class="download-section">
-        <p class="desc">您的 PPT 模板下载链接如下：</p>
+        <p class="desc">{{ store.t('getDownloadLink') }}:</p>
         <div class="download-box">
-          <p class="url-text">{{ downloadUrl || '正在生成下载地址...' }}</p>
+          <p class="url-text">{{ downloadUrl || store.t('generatingDownloadLink') }}</p>
           <button v-if="downloadUrl" class="download-btn" @click="handleDownload">
-            <Download :size="18" /> 立即下载
+            <Download :size="18" /> {{ store.t('downloadNow') }}
           </button>
         </div>
       </div>
       <div v-else class="member-success">
-         <p class="desc">您的永久会员权益已生效，正在为您跳转至首页...</p>
+         <p class="desc">{{ store.t('memberSuccessDesc') }}</p>
       </div>
 
       <div class="actions">
         <button class="primary-btn" @click="router.push('/')">
-          回到首页 <ArrowRight :size="18" />
+          {{ store.t('backToHome') }} <ArrowRight :size="18" />
         </button>
       </div>
     </div>
 
     <div v-else class="status-card failed">
       <div class="fail-icon">!</div>
-      <h1>支付验证失败</h1>
+      <h1>{{ store.t('verificationFailed') }}</h1>
       <p class="desc">{{ message }}</p>
       <div class="actions">
-        <button class="secondary-btn" @click="router.push('/')">回到首页</button>
-        <button class="primary-btn" @click="router.push('/contact')">联系客服</button>
+        <button class="secondary-btn" @click="router.push('/')">{{ store.t('backToHome') }}</button>
+        <button class="primary-btn" @click="router.push('/contact')">{{ store.t('contactSupport') }}</button>
       </div>
     </div>
   </div>

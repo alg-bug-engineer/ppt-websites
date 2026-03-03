@@ -1,57 +1,54 @@
 <script setup lang="ts">
 import { Phone, Mail, MapPin } from 'lucide-vue-next';
+import { store } from '../store';
 </script>
 
 <template>
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-left">
-        <div class="logo-white">芝士AI吃鱼-PPT</div>
-        <p class="slogan">高效满足老师比赛、学生创赛、项目申报等每一个场景需求。</p>
+        <div class="logo-white">{{ store.t('siteTitle') }}</div>
+        <p class="slogan">{{ store.t('footerSlogan') }}</p>
         
         <div class="contact-info">
           <div class="contact-item">
-            <span class="label">版权所有：</span>
-            <span>武汉芝士AI演示设计有限公司</span>
+            <span class="label">{{ store.t('copyright') }}</span>
+            <span>{{ store.t('companyName') }}</span>
           </div>
           <div class="contact-item">
             <Phone :size="16" class="icon" />
-            <span class="label">联系电话：</span>
-            <span>131-6461-1783</span>
+            <span class="label">{{ store.t('phone') }}</span>
+            <span>+86 131-6461-1783</span>
           </div>
           <div class="contact-item">
             <Mail :size="16" class="icon" />
-            <span class="label">联系邮箱：</span>
+            <span class="label">{{ store.t('email') }}</span>
             <span>contact@cheeseeatfish.ai</span>
           </div>
           <div class="contact-item">
             <MapPin :size="16" class="icon" />
-            <span class="label">办公地址：</span>
-            <span>武汉市东湖新技术开发区高新大道778号</span>
+            <span class="label">{{ store.t('address') }}</span>
+            <span>{{ store.t('addressDetail') }}</span>
           </div>
-        </div>
-        
-        <div class="beian">
-          <a href="#">鄂ICP备2025134826号-1</a>
         </div>
       </div>
 
       <div class="footer-right">
-        <h4 class="footer-title">关于我们</h4>
+        <h4 class="footer-title">{{ store.t('aboutUs') }}</h4>
         <div class="about-text">
-          <p>芝士AI吃鱼-PPT 教育行业定制领航平台</p>
-          <p>全教学及设计团队，累计服务高校老师、教授10W+，帮助超2000+老师赛事获奖成功。</p>
-          <p>擅长教学比赛、教学创新、世界职业技能大赛、高校大创赛、项目申报、科研绘图、精品公开课等各场景的PPT需求解决，期待与您的每一次合作共创！</p>
+          <p>{{ store.t('aboutUsDesc1') }}</p>
+          <p>{{ store.t('aboutUsDesc2') }}</p>
+          <p>{{ store.t('aboutUsDesc3') }}</p>
         </div>
       </div>
     </div>
     
     <div class="friend-links">
-      <span class="label">友情链接：</span>
-      <a href="#">快动画</a>
-      <a href="#">白衣天使PPT</a>
-      <a href="#">AI办公网</a>
-      <a href="#">学术资源库</a>
+      <span class="label">{{ store.t('links') }}</span>
+      <a href="#">Quick Animation</a>
+      <a href="#">Angel in White PPT</a>
+      <a href="#">AI Office Web</a>
+      <a href="#">Academic Resources</a>
     </div>
   </footer>
 </template>

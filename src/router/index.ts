@@ -15,6 +15,7 @@ const routes = [
   { path: '/search', name: 'search', component: SearchView },
   { path: '/contact', name: 'contact', component: ContactView },
   { path: '/payment-success', name: 'payment-success', component: PaymentSuccessView },
+  { path: '/profile', name: 'profile', component: () => import('../views/PersonalCenterView.vue') },
   { 
     path: '/admin', 
     name: 'admin', 

@@ -1,24 +1,25 @@
 <script setup lang="ts">
 import { Phone, Mail, MessageSquare, ArrowRight, QrCode } from 'lucide-vue-next';
+import { store } from '../store';
 </script>
 
 <template>
   <div class="contact-view">
     <div class="contact-header">
-      <h1 class="contact-title">联系我们</h1>
-      <p class="contact-subtitle">专业的 PPT 定制团队，全天候为您服务</p>
+      <h1 class="contact-title">{{ store.t('contactTitle') }}</h1>
+      <p class="contact-subtitle">{{ store.t('contactSubtitle') }}</p>
     </div>
 
     <div class="contact-content">
       <div class="contact-qr-section">
         <div class="qr-card">
-          <h3>扫码添加微信好友</h3>
-          <p class="qr-desc">获取专属优惠及一对一需求对接</p>
+          <h3>{{ store.t('scanToAddWechat') }}</h3>
+          <p class="qr-desc">{{ store.t('qrDesc') }}</p>
           <div class="qr-placeholder">
             <QrCode :size="200" color="#1fcdb6" />
-            <span>芝士AI吃鱼 - 官方客服</span>
+            <span>{{ store.t('officialSupport') }}</span>
           </div>
-          <div class="wechat-id">微信号: cheese_ai_service</div>
+          <div class="wechat-id">WeChat ID: cheese_ai_service</div>
         </div>
       </div>
 
@@ -28,9 +29,9 @@ import { Phone, Mail, MessageSquare, ArrowRight, QrCode } from 'lucide-vue-next'
             <Phone :size="24" />
           </div>
           <div class="info-details">
-            <h4>电话咨询</h4>
-            <p>131-6461-1783</p>
-            <span>周一至周日 9:00 - 22:00</span>
+            <h4>{{ store.t('phoneConsultation') }}</h4>
+            <p>+86 185-6075-7937</p>
+            <span>{{ store.t('monSun') }}</span>
           </div>
         </div>
 
@@ -39,9 +40,9 @@ import { Phone, Mail, MessageSquare, ArrowRight, QrCode } from 'lucide-vue-next'
             <Mail :size="24" />
           </div>
           <div class="info-details">
-            <h4>商务合作</h4>
-            <p>contact@cheeseeatfish.ai</p>
-            <span>合作洽谈、大客户采购</span>
+            <h4>{{ store.t('businessCooperation') }}</h4>
+            <p>qq@cheeseeatfish.ai</p>
+            <span>{{ store.t('partnerships') }}</span>
           </div>
         </div>
         
@@ -50,9 +51,9 @@ import { Phone, Mail, MessageSquare, ArrowRight, QrCode } from 'lucide-vue-next'
             <MessageSquare :size="24" />
           </div>
           <div class="info-details">
-            <h4>高端PPT定制</h4>
-            <p>量身打造各类大赛及申报方案</p>
-            <button class="custom-btn" @click="$router.push('/contact')">了解更多 <ArrowRight :size="16" /></button>
+            <h4>{{ store.t('premiumCustomization') }}</h4>
+            <p>{{ store.t('aboutUsDesc3').substring(0, 30) }}...</p>
+            <button class="custom-btn" @click="$router.push('/contact')">{{ store.t('learnMore') }} <ArrowRight :size="16" /></button>
           </div>
         </div>
       </div>

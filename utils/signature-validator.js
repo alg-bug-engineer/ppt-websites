@@ -1,30 +1,30 @@
 /**
- * 基于 Secret 的字典参数签名验证器
+ * Dictionary parameter signature validator based on Secret
  *
- * 使用 HMAC-SHA256 算法确保参数完整性和真实性
- * 与官方 demo 的 TypeScript 版本逻辑完全一致
+ * Uses HMAC-SHA256 algorithm to ensure parameter integrity and authenticity
+ * Strictly follows the logic of the official demo
  */
 
 import crypto from 'crypto';
 
 export class SignatureValidator {
   /**
-   * 初始化验证器
-   * @param {string} secret - 密钥字符串
+   * Initialize validator
+   * @param {string} secret - Secret string
    */
   constructor(secret) {
     if (!secret || secret.trim() === '') {
-      throw new Error('Secret 不能为空!');
+      throw new Error('Secret cannot be empty!');
     }
     this.secret = secret;
   }
 
   /**
-   * 生成签名
-   * @param {Object} params - 需要签名的参数对象
-   * @param {number|null} timestamp - 时间戳(可选)
-   * @param {Set<string>|null} excludeKeys - 需要排除的键集合
-   * @returns {string} 签名字符串(十六进制)
+   * Generate signature
+   * @param {Object} params - Parameter object to sign
+   * @param {number|null} timestamp - Timestamp (optional)
+   * @param {Set<string>|null} excludeKeys - Keys to exclude
+   * @returns {string} Signature string (hex)
    */
   generateSignature(params, timestamp = null, excludeKeys = null) {
     const finalExcludeKeys = excludeKeys || new Set(['sign', 'signature']);
@@ -49,11 +49,11 @@ export class SignatureValidator {
   }
 
   /**
-   * 验证签名是否合法
-   * @param {Object} params - 请求参数对象
-   * @param {string} signature - 待验证的签名
-   * @param {number|null} timestampTolerance - 时间戳容差(秒)
-   * @returns {boolean} true: 签名合法, false: 签名非法
+   * Validate if signature is legal
+   * @param {Object} params - Request parameter object
+   * @param {string} signature - Signature to validate
+   * @param {number|null} timestampTolerance - Timestamp tolerance (seconds)
+   * @returns {boolean} true: valid, false: invalid
    */
   validate(params, signature, timestampTolerance = null) {
     if (timestampTolerance !== null && params.timestamp) {
@@ -65,20 +65,18 @@ export class SignatureValidator {
     const expectedSign = this.generateSignature(params);
 
     try {
-      // 使用 timingSafeEqual 防止时序攻击
+      // Use timingSafeEqual to prevent timing attacks
       return crypto.timingSafeEqual(
         Buffer.from(expectedSign),
         Buffer.from(signature)
       );
     } catch (error) {
-      console.error('[SignatureValidator] validate error', error);
       return false;
     }
   }
 
   /**
-   * 判断值是否有效(不为空)
-   * @private
+   * Check if value is valid (not empty)
    */
   _isValidValue(value) {
     if (value === null || value === undefined) return false;
@@ -89,8 +87,7 @@ export class SignatureValidator {
   }
 
   /**
-   * 统一值的字符串表示
-   * @private
+   * Normalize value to string representation
    */
   _normalizeValue(value) {
     if (typeof value === 'object' && value !== null) {
@@ -100,14 +97,11 @@ export class SignatureValidator {
   }
 
   /**
-   * 递归排序对象的所有键
-   * @private
+   * Recursively sort all keys of an object
    */
   _sortObjectKeys(obj) {
     if (typeof obj !== 'object' || obj === null) return obj;
-    if (Array.isArray(obj)) {
-      return obj.map((item) => this._sortObjectKeys(item));
-    }
+    if (Array.isArray(obj)) return obj.map((item) => this._sortObjectKeys(item));
     return Object.keys(obj)
       .sort()
       .reduce((result, key) => {
@@ -117,25 +111,22 @@ export class SignatureValidator {
   }
 
   /**
-   * 构建待签名字符串
-   * @private
+   * Build string to be signed
    */
   _buildSignString(params) {
     const sortedKeys = Object.keys(params).sort();
-
     const parts = sortedKeys.map((key) => {
       const value = this._normalizeValue(params[key]);
-      const encodedKey = encodeURIComponent(key);
-      const encodedValue = encodeURIComponent(value);
+      // Ensure spaces are encoded as '+' to match Python's quote_plus and 302.ai rules
+      const encodedKey = encodeURIComponent(key).replace(/%20/g, '+');
+      const encodedValue = encodeURIComponent(value).replace(/%20/g, '+');
       return `${encodedKey}=${encodedValue}`;
     });
-
     return parts.join('&');
   }
 
   /**
-   * 检查时间戳是否在容差范围内
-   * @private
+   * Check if timestamp is within tolerance
    */
   _checkTimestamp(timestamp, tolerance) {
     try {

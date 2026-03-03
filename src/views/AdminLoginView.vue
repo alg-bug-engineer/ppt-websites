@@ -13,7 +13,7 @@ const handleAdminLogin = () => {
     localStorage.setItem('isAdminAuthenticated', 'true');
     router.push('/admin');
   } else {
-    error.value = '账号或密码错误，请重试';
+    error.value = 'Invalid username or password';
   }
 };
 </script>
@@ -23,29 +23,29 @@ const handleAdminLogin = () => {
     <div class="login-card">
       <div class="back-home" @click="router.push('/')">
         <ArrowLeft :size="20" />
-        <span>主站首页</span>
+        <span>Main Site</span>
       </div>
       
       <div class="auth-header">
-        <h2 class="logo-text">管理后台登录</h2>
-        <p class="subtitle">请输入管理员凭据以访问控制台</p>
+        <h2 class="logo-text">Admin Login</h2>
+        <p class="subtitle">Please enter administrator credentials</p>
       </div>
 
       <div class="form-container">
         <div class="input-group">
           <User :size="18" class="icon" />
-          <input v-model="username" type="text" placeholder="管理员账号" @keyup.enter="handleAdminLogin" />
+          <input v-model="username" type="text" placeholder="Username" @keyup.enter="handleAdminLogin" />
         </div>
 
         <div class="input-group">
           <Lock :size="18" class="icon" />
-          <input v-model="password" type="password" placeholder="密码" @keyup.enter="handleAdminLogin" />
+          <input v-model="password" type="password" placeholder="Password" @keyup.enter="handleAdminLogin" />
         </div>
 
         <div v-if="error" class="error-msg">{{ error }}</div>
 
         <button class="auth-btn" @click="handleAdminLogin">
-          进入管理后台
+          Login to Console
         </button>
       </div>
     </div>

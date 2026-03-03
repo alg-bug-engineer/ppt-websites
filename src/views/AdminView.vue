@@ -77,7 +77,7 @@ const uploadFile = async (file: File, productId: number): Promise<{ url: string,
     return { url: data.url, filename: data.filename };
   } catch (error) {
     console.error('Upload failed:', error);
-    alert('文件上传失败，请检查后端服务是否运行');
+    alert('Upload failed, please check if the backend service is running');
     throw error;
   }
 };
@@ -95,7 +95,7 @@ const handlePPTUpload = async (event: Event) => {
   if (target.files && target.files[0]) {
     const result = await uploadFile(target.files[0], newTemplate.value.id);
     newTemplate.value.pptFile = result.filename;
-    alert('PPT文件上传成功');
+    alert('PPT file uploaded successfully');
   }
 };
 
@@ -116,7 +116,7 @@ const removeScreenshot = (index: number) => {
 
 const handleAddTemplate = () => {
   if (!newTemplate.value.title || !newTemplate.value.pptFile || !newTemplate.value.image) {
-    alert('请填写必要信息（标题、上传主图、上传PPT文件）');
+    alert('Please fill in required information (Title, Main Image, PPT File)');
     return;
   }
 
@@ -143,7 +143,7 @@ const handleAddTemplate = () => {
 fetchWebhookUrl();
 
 const deleteTemplate = async (id: number) => {
-  if (confirm('确定要删除这个商品吗？')) {
+  if (confirm('Are you sure you want to delete this product?')) {
     await store.deleteTemplate(id);
   }
 };
@@ -157,68 +157,68 @@ const handleLogout = () => {
 <template>
   <div class="admin-container">
     <aside class="admin-sidebar">
-      <div class="admin-logo">芝士AI-管理后台</div>
+      <div class="admin-logo">Cheese AI - Admin</div>
       <nav class="admin-nav">
         <div class="nav-item" :class="{ active: activeTab === 'dashboard' }" @click="activeTab = 'dashboard'">
-          <LayoutDashboard :size="20" /> <span>概览统计</span>
+          <LayoutDashboard :size="20" /> <span>Dashboard</span>
         </div>
         <div class="nav-item" :class="{ active: activeTab === 'products' }" @click="activeTab = 'products'">
-          <List :size="20" /> <span>商品管理</span>
+          <List :size="20" /> <span>Products</span>
         </div>
       </nav>
       <div class="sidebar-footer">
         <div class="nav-item logout" @click="handleLogout">
-          <LogOut :size="20" /> <span>退出登录</span>
+          <LogOut :size="20" /> <span>Logout</span>
         </div>
       </div>
     </aside>
 
     <main class="admin-content">
       <header class="admin-header">
-        <div class="header-title">{{ activeTab === 'dashboard' ? '数据看板' : '商品列表' }}</div>
+        <div class="header-title">{{ activeTab === 'dashboard' ? 'Data Dashboard' : 'Product List' }}</div>
         <button v-if="activeTab === 'products'" class="add-btn" @click="openAddModal">
-          <Plus :size="18" /> 发布新商品
+          <Plus :size="18" /> Add New Product
         </button>
       </header>
 
       <section v-if="activeTab === 'dashboard'" class="dashboard-section">
         <div v-if="webhookUrl" class="webhook-info-box">
-          <div class="webhook-label">Webhook 回调地址 (302.AI 配置使用):</div>
+          <div class="webhook-label">Webhook URL (For 302.AI Configuration):</div>
           <div class="webhook-url">{{ webhookUrl }}</div>
         </div>
         <div class="stat-cards">
           <div class="stat-card">
             <BarChart3 class="icon view" />
             <div class="stat-info">
-              <div class="stat-label">总浏览量</div>
+              <div class="stat-label">Total Views</div>
               <div class="stat-value">{{ stats.totalViews }}</div>
             </div>
           </div>
           <div class="stat-card">
             <FileUp class="icon download" />
             <div class="stat-info">
-              <div class="stat-label">总下载量</div>
+              <div class="stat-label">Total Downloads</div>
               <div class="stat-value">{{ stats.totalDownloads }}</div>
             </div>
           </div>
           <div class="stat-card">
             <List class="icon product" />
             <div class="stat-info">
-              <div class="stat-label">商品总数</div>
+              <div class="stat-label">Total Products</div>
               <div class="stat-value">{{ store.templates.length }}</div>
             </div>
           </div>
         </div>
 
         <div class="popular-products">
-          <h3>热门商品排行</h3>
+          <h3>Popular Products</h3>
           <table class="admin-table">
             <thead>
               <tr>
-                <th>标题</th>
-                <th>浏览次数</th>
-                <th>下载次数</th>
-                <th>转化率</th>
+                <th>Title</th>
+                <th>Views</th>
+                <th>Downloads</th>
+                <th>Conv Rate</th>
               </tr>
             </thead>
             <tbody>
@@ -237,19 +237,19 @@ const handleLogout = () => {
         <table class="admin-table">
           <thead>
             <tr>
-              <th>主图</th>
-              <th>标题</th>
-              <th>定价</th>
-              <th>分类</th>
-              <th>PPT文件</th>
-              <th>操作</th>
+              <th>Image</th>
+              <th>Title</th>
+              <th>Price</th>
+              <th>Category</th>
+              <th>PPT File</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="t in store.templates" :key="t.id">
               <td><img :src="store.getAssetUrl(t.image)" class="thumb" /></td>
               <td>{{ t.title }}</td>
-              <td>¥{{ t.price }}</td>
+              <td>${{ t.price }}</td>
               <td>{{ t.categoryId }}</td>
               <td><span class="url-text">{{ t.pptFile }}</span></td>
               <td class="actions-cell">
@@ -266,63 +266,66 @@ const handleLogout = () => {
     <div v-if="showAddForm" class="modal-overlay">
       <div class="modal-card">
         <div class="modal-header-box">
-          <h3>{{ editingId !== null ? '编辑商品' : '发布新商品' }}</h3>
+          <h3>{{ editingId !== null ? 'Edit Product' : 'Add New Product' }}</h3>
           <button class="close-modal" @click="showAddForm = false">×</button>
         </div>
         <div class="form-grid">
           <div class="form-group full">
-            <label>商品标题 *</label>
-            <input v-model="newTemplate.title" type="text" placeholder="请输入PPT完整标题" />
+            <label>Product Title *</label>
+            <input v-model="newTemplate.title" type="text" placeholder="Enter PPT title" />
           </div>
           
           <div class="form-group full">
-            <label>上传主图 * (列表页展示图)</label>
+            <label>Main Image * (Thumbnail)</label>
             <div class="upload-box" @click="($refs as any).mainImageInput.click()">
               <input ref="mainImageInput" type="file" accept="image/*" hidden @change="handleMainImageUpload" />
               <div v-if="newTemplate.image" class="preview-wrapper">
                 <img :src="store.getAssetUrl(newTemplate.image)" class="upload-preview" />
-                <div class="change-overlay">更换图片</div>
+                <div class="change-overlay">Change Image</div>
               </div>
               <div v-else class="upload-placeholder">
                 <Upload :size="32" />
-                <span>点击上传主图</span>
+                <span>Click to upload main image</span>
               </div>
             </div>
           </div>
 
           <div class="form-group">
-            <label>定价 (元) *</label>
+            <label>Price (USD) *</label>
             <input v-model.number="newTemplate.price" type="number" step="0.1" />
           </div>
 
           <div class="form-group">
-            <label>分类</label>
+            <label>Category</label>
             <select v-model="newTemplate.categoryId">
-              <option value="1">教学创新大赛</option>
-              <option value="2">教学能力大赛</option>
-              <option value="3">高校青教赛</option>
-              <option value="6">高端PPT定制</option>
+              <option value="1">Teaching Innovation</option>
+              <option value="2">Teaching Ability</option>
+              <option value="3">Young Teachers</option>
+              <option value="4">Other Competitions</option>
+              <option value="6">Premium Customization</option>
+              <option value="7">Thesis Defense</option>
+              <option value="8">Free Resources</option>
             </select>
           </div>
 
           <div class="form-group full">
-            <label>上传 PPT 文件 *</label>
+            <label>Upload PPT File *</label>
             <div class="ppt-upload-box" @click="($refs as any).pptFileInput.click()">
               <input ref="pptFileInput" type="file" accept=".ppt,.pptx" hidden @change="handlePPTUpload" />
               <div v-if="newTemplate.pptFile" class="ppt-file-info">
                 <FileUp :size="24" />
                 <span>{{ newTemplate.pptFile }}</span>
-                <span class="change-hint">(点击更换)</span>
+                <span class="change-hint">(Click to change)</span>
               </div>
               <div v-else class="upload-placeholder">
                 <Upload :size="32" />
-                <span>点击上传 PPT 源文件</span>
+                <span>Click to upload PPT source file</span>
               </div>
             </div>
           </div>
 
           <div class="form-group full">
-            <label>上传详情页展示截图</label>
+            <label>Upload Screenshots</label>
             <div class="screenshots-grid">
               <div v-for="(img, idx) in newTemplate.screenshots" :key="idx" class="screenshot-item">
                 <img :src="store.getAssetUrl(img)" />
@@ -331,14 +334,14 @@ const handleLogout = () => {
               <div class="add-screenshot-box" @click="($refs as any).screenshotInput.click()">
                 <input ref="screenshotInput" type="file" accept="image/*" multiple hidden @change="handleScreenshotsUpload" />
                 <Plus :size="24" />
-                <span>添加截图</span>
+                <span>Add Screenshot</span>
               </div>
             </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button class="cancel-btn" @click="showAddForm = false">取消</button>
-          <button class="confirm-btn" @click="handleAddTemplate">{{ editingId !== null ? '保存修改' : '确认发布' }}</button>
+          <button class="cancel-btn" @click="showAddForm = false">Cancel</button>
+          <button class="confirm-btn" @click="handleAddTemplate">{{ editingId !== null ? 'Save Changes' : 'Confirm Publish' }}</button>
         </div>
       </div>
     </div>

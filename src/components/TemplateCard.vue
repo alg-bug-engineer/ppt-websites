@@ -12,14 +12,14 @@ defineProps<{
     <div class="template-image">
       <img :src="store.getAssetUrl(template.image)" :alt="template.title" loading="lazy" />
       <div class="overlay">
-        <button class="preview-btn">预览</button>
+        <button class="preview-btn">{{ store.t('preview') }}</button>
       </div>
     </div>
     <div class="template-info">
       <h3 class="template-title">{{ template.title }}</h3>
       <div class="template-footer">
-        <span class="price">¥{{ template.price.toFixed(2) }}</span>
-        <button class="download-btn">获取</button>
+        <span class="price">${{ template.price.toFixed(2) }}</span>
+        <button class="download-btn">{{ store.t('get') }}</button>
       </div>
     </div>
   </div>

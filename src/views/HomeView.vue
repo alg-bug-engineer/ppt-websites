@@ -16,18 +16,18 @@ const handleOpenModal = (template: Template) => {
   <div class="home-view">
     <div class="banner">
       <div class="banner-content">
-        <h2 class="banner-title">专业教学竞赛PPT定制</h2>
-        <p class="banner-desc">助力高校老师在各类教学竞赛中脱颖而出，提供一站式演示方案。</p>
-        <button class="banner-btn" @click="$router.push('/contact')">立即咨询</button>
+        <h2 class="banner-title">{{ store.t('bannerTitle') }}</h2>
+        <p class="banner-desc">{{ store.t('bannerDesc') }}</p>
+        <button class="banner-btn" @click="$router.push('/contact')">{{ store.t('consultNow') }}</button>
       </div>
     </div>
 
     <div class="section-header">
-      <h2 class="section-title">热门模板</h2>
+      <h2 class="section-title">{{ store.t('popularTemplates') }}</h2>
       <div class="sort-options">
-        <span class="active">最新发布</span>
-        <span>销量最高</span>
-        <span>价格低到高</span>
+        <span class="active">{{ store.t('newest') }}</span>
+        <span>{{ store.t('bestSelling') }}</span>
+        <span>{{ store.t('priceLowToHigh') }}</span>
       </div>
     </div>
 
@@ -42,7 +42,7 @@ const handleOpenModal = (template: Template) => {
 
 
     <div class="load-more">
-      <button class="load-more-btn">没有更多了</button>
+      <button class="load-more-btn">{{ store.t('noMoreItems') }}</button>
     </div>
 
     <PreviewModal 
@@ -123,7 +123,7 @@ const handleOpenModal = (template: Template) => {
   color: var(--primary-color);
 }
 
-.template-grid {
+.templates-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 24px;

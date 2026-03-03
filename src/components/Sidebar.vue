@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
+import { store } from '../store';
 import { 
   GraduationCap, 
   Lightbulb, 
   BookMarked, 
-  MoreHorizontal, 
   Crown, 
   FileText, 
   Gift 
@@ -13,15 +13,13 @@ import {
 const router = useRouter();
 
 const categories = [
-  { id: 1, name: '教学创新大赛', icon: GraduationCap },
-  { id: 2, name: '教学能力大赛', icon: Lightbulb },
-  { id: 3, name: '高校青教赛', icon: BookMarked },
-  { id: 4, name: '其他教学竞赛', icon: GraduationCap },
-  { id: 5, name: '更多分类', icon: MoreHorizontal },
-  { id: 6, name: '高端PPT定制', icon: Crown },
-  { id: 7, name: '毕业论文答辩', icon: FileText },
-  { id: 8, name: '免费专区', icon: Gift },
-];
+  { id: 1, nameKey: 'teachingInnovation', icon: GraduationCap },
+  { id: 2, nameKey: 'teachingAbility', icon: Lightbulb },
+  { id: 3, nameKey: 'youngTeachers', icon: BookMarked },
+  { id: 4, nameKey: 'otherCompetitions', icon: GraduationCap },
+  { id: 7, nameKey: 'thesisDefense', icon: FileText },
+  { id: 8, nameKey: 'freeResources', icon: Gift },
+] as const;
 
 const navigateToCategory = (id: number) => {
   router.push(`/category/${id}`);
@@ -39,7 +37,7 @@ const navigateToCategory = (id: number) => {
           @click="navigateToCategory(cat.id)"
         >
           <component :is="cat.icon" :size="20" class="category-icon" />
-          <span class="category-name">{{ cat.name }}</span>
+          <span class="category-name">{{ store.t(cat.nameKey) }}</span>
         </li>
       </ul>
     </div>
