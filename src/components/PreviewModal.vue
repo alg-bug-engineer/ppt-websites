@@ -2,7 +2,7 @@
 import { ref, computed, watch } from 'vue';
 import { store } from '../store';
 import type { Template } from '../store';
-import { X, Download, Crown, ShieldCheck, Home } from 'lucide-vue-next';
+import { X, Download, Crown } from 'lucide-vue-next';
 
 const props = defineProps<{
   template: Template | null;
@@ -51,7 +51,7 @@ const handlePay = async () => {
   
   try {
     await store.createPaymentOrder({
-      amount: displayPrice.value,
+      amount: String(displayPrice.value),
       title: `Download PPT: ${props.template?.title}`,
       itemType: 'ppt',
       itemId: props.template?.id

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import { store } from '../store';
 import { categories } from '../data';
@@ -15,6 +15,12 @@ const categoryName = computed(() => {
   const cat = categories.find(c => c.id === categoryId.value);
   if (!cat) return store.t('noTemplatesFound');
   return store.t(cat.nameKey as any);
+});
+
+watchEffect(() => {
+  if (categoryName.value) {
+    document.title = `${categoryName.value} - 芝士AI吃鱼`;
+  }
 });
 
 const filteredTemplates = computed(() => {

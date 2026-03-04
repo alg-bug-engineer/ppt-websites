@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Phone, Mail, MapPin } from 'lucide-vue-next';
+import { Mail, MapPin } from 'lucide-vue-next';
 import { store } from '../store';
 </script>
 
@@ -16,14 +16,9 @@ import { store } from '../store';
             <span>{{ store.t('companyName') }}</span>
           </div>
           <div class="contact-item">
-            <Phone :size="16" class="icon" />
-            <span class="label">{{ store.t('phone') }}</span>
-            <span>+86 131-6461-1783</span>
-          </div>
-          <div class="contact-item">
             <Mail :size="16" class="icon" />
             <span class="label">{{ store.t('email') }}</span>
-            <span>contact@cheeseeatfish.ai</span>
+            <span>646184101@qq.com</span>
           </div>
           <div class="contact-item">
             <MapPin :size="16" class="icon" />

@@ -9,9 +9,10 @@ export interface Category {
 
 export const categories: Category[] = [
   { id: 1, name: 'Teaching Innovation', nameKey: 'teachingInnovation' },
-  { id: 2, name: 'Teaching Ability', nameKey: 'teachingAbility' },
-  { id: 3, name: 'Young Teachers', nameKey: 'youngTeachers' },
-  { id: 4, name: 'Other Competitions', nameKey: 'otherCompetitions' },
+  { id: 2, name: 'Academic Report', nameKey: 'academicReport' },
+  { id: 3, name: 'Project Application', nameKey: 'projectApplication' },
+  { id: 4, name: 'Summary & Promotion', nameKey: 'summaryPromotion' },
+  { id: 5, name: 'AI & Big Model', nameKey: 'aiBigModel' },
   { id: 6, name: 'Premium Customization', nameKey: 'premiumCustomization' },
   { id: 7, name: 'Thesis Defense', nameKey: 'thesisDefense' },
   { id: 8, name: 'Free Resources', nameKey: 'freeResources' },

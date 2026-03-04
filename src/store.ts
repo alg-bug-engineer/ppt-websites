@@ -1,4 +1,4 @@
-import { reactive, watch } from 'vue';
+import { reactive } from 'vue';
 import { translations } from './i18n';
 
 export interface Template {

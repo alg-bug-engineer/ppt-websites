@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Phone, Mail, MessageSquare, ArrowRight, QrCode } from 'lucide-vue-next';
+import { Mail, MessageSquare, ArrowRight } from 'lucide-vue-next';
 import { store } from '../store';
 </script>
 
@@ -15,33 +15,21 @@ import { store } from '../store';
         <div class="qr-card">
           <h3>{{ store.t('scanToAddWechat') }}</h3>
           <p class="qr-desc">{{ store.t('qrDesc') }}</p>
-          <div class="qr-placeholder">
-            <QrCode :size="200" color="#1fcdb6" />
+          <div class="qr-image-container">
+            <img src="/QR.png" alt="WeChat QR" class="qr-image" />
             <span>{{ store.t('officialSupport') }}</span>
           </div>
-          <div class="wechat-id">WeChat ID: cheese_ai_service</div>
         </div>
       </div>
 
       <div class="contact-info-cards">
-        <div class="info-card">
-          <div class="info-icon phone">
-            <Phone :size="24" />
-          </div>
-          <div class="info-details">
-            <h4>{{ store.t('phoneConsultation') }}</h4>
-            <p>+86 185-6075-7937</p>
-            <span>{{ store.t('monSun') }}</span>
-          </div>
-        </div>
-
         <div class="info-card">
           <div class="info-icon email">
             <Mail :size="24" />
           </div>
           <div class="info-details">
             <h4>{{ store.t('businessCooperation') }}</h4>
-            <p>qq@cheeseeatfish.ai</p>
+            <p>646184101@qq.com</p>
             <span>{{ store.t('partnerships') }}</span>
           </div>
         </div>
@@ -74,15 +62,15 @@ import { store } from '../store';
 .qr-card h3 { font-size: 24px; color: #333; margin-bottom: 8px; }
 .qr-desc { color: #999; font-size: 14px; margin-bottom: 30px; }
 
-.qr-placeholder { background-color: #f8fafc; padding: 40px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 20px; border: 1px solid #f1f5f9; margin-bottom: 20px; }
-.qr-placeholder span { font-weight: bold; color: #1fcdb6; font-size: 18px; }
+.qr-image-container { background-color: #f8fafc; padding: 20px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 20px; border: 1px solid #f1f5f9; margin-bottom: 20px; }
+.qr-image { width: 240px; height: 240px; object-fit: contain; }
+.qr-image-container span { font-weight: bold; color: #1fcdb6; font-size: 18px; }
 
 .wechat-id { font-size: 15px; color: #64748b; font-family: monospace; }
 
 .contact-info-cards { width: 400px; display: flex; flex-direction: column; gap: 24px; }
 .info-card { background-color: #fff; padding: 24px; border-radius: 16px; display: flex; gap: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
 .info-icon { width: 54px; height: 54px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fff; }
-.info-icon.phone { background-color: #1fcdb6; }
 .info-icon.email { background-color: #3b82f6; }
 .info-icon.blue { background-color: #6366f1; }
 

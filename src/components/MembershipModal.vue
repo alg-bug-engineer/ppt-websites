@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { store } from '../store';
-import { X, Crown, Download, ShieldCheck } from 'lucide-vue-next';
+import { Crown, Download, ShieldCheck } from 'lucide-vue-next';
 
 const isPaying = ref(false);
 

@@ -4,11 +4,12 @@ import { store } from '../store';
 import { categories as allCategories } from '../data';
 import { 
   GraduationCap, 
-  Lightbulb, 
-  BookMarked, 
-  Crown, 
+  BookOpen, 
   FileText, 
-  Gift 
+  Award,
+  Cpu,
+  Gift,
+  Briefcase
 } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -16,12 +17,13 @@ const router = useRouter();
 // Filter categories for sidebar (exclude Premium Customization id:6 as it is in Header)
 const sidebarCategories = allCategories.filter(c => c.id !== 6).map(c => {
   const iconMap: Record<number, any> = {
-    1: GraduationCap,
-    2: Lightbulb,
-    3: BookMarked,
-    4: GraduationCap,
-    7: FileText,
-    8: Gift
+    1: GraduationCap,   // Teaching Innovation
+    2: BookOpen,        // Academic Report
+    3: FileText,        // Project Application
+    4: Briefcase,       // Summary & Promotion
+    5: Cpu,             // AI & Big Model
+    7: Award,           // Thesis Defense
+    8: Gift             // Free Resources
   };
   return { ...c, icon: iconMap[c.id] || GraduationCap };
 });

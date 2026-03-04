@@ -138,6 +138,7 @@ app.post('/api/templates', (req, res) => {
   const newTemplate = { 
     ...req.body, 
     id: parseInt(id), 
+    source: req.body.source || 'Admin',
     viewCount: 0, 
     downloadCount: 0 
   };
@@ -182,7 +183,8 @@ app.post('/api/templates/:id/view', (req, res) => {
 app.get('/api/templates/:id/download', (req, res) => {
   const templates = getTemplates();
   const template = templates.find(t => t.id === parseInt(req.params.id));
-  
+  const { phone } = req.query; // Capture phone if provided
+
   if (!template || !template.pptFile) {
     return res.status(404).json({ error: 'PPT file not found' });
   }
@@ -192,6 +194,22 @@ app.get('/api/templates/:id/download', (req, res) => {
   if (!fs.existsSync(filePath)) {
     return res.status(404).json({ error: 'File on disk not found' });
   }
+
+  // --- Detailed Logging ---
+  const logEntry = {
+    type: 'DOWNLOAD',
+    timestamp: new Date().toISOString(),
+    templateId: template.id,
+    templateTitle: template.title,
+    templateSource: template.source || 'Admin', // Default to Admin
+    userPhone: phone || 'Guest/Unknown',
+    file: template.pptFile
+  };
+  console.log(`[Log][Download] User ${logEntry.userPhone} downloaded PPT ${template.id} ("${template.title}"), Source: ${logEntry.templateSource}`);
+  
+  // Append to a log file for persistent records
+  const logFilePath = path.join(dataDir, 'activity.log');
+  fs.appendFileSync(logFilePath, JSON.stringify(logEntry) + '\n');
 
   // Increment download count
   template.downloadCount = (template.downloadCount || 0) + 1;
@@ -239,7 +257,7 @@ app.post('/api/pay/create', async (req, res) => {
   console.log(`[Payment] Internal Order ID: ${orderId}, Price in Cents: ${priceInCents}`);
 
   const orders = getOrders();
-  orders.push({
+  const newOrder = {
     id: orderId,
     amount: parsedAmount,
     title,
@@ -249,8 +267,14 @@ app.post('/api/pay/create', async (req, res) => {
     itemId,
     status: 'pending',
     createdAt: new Date().toISOString()
-  });
+  };
+  orders.push(newOrder);
   saveOrders(orders);
+
+  // --- Detailed Logging ---
+  console.log(`[Log][Payment-Order] Created order ${orderId} for ${customerId}, Amount: ${parsedAmount}, Item: ${title} (${itemType}:${itemId})`);
+  const logFilePath = path.join(dataDir, 'activity.log');
+  fs.appendFileSync(logFilePath, JSON.stringify({ type: 'ORDER_CREATE', ...newOrder }) + '\n');
 
   if (IS_DEBUG) {
     const mockCheckoutUrl = `${PUBLIC_URL}/api/pay/mock-gate?order_id=${orderId}&suc_url=${encodeURIComponent(req.headers.origin + '/payment-success')}`;
@@ -390,6 +414,19 @@ app.post('/api/payment/checkout', async (req, res) => {
         }
         saveOrders(orders);
         console.log(`[Webhook] Order ${orderId} marked as PAID.`);
+
+        // --- Detailed Logging ---
+        console.log(`[Log][Payment-Success] Order ${orderId} paid successfully by ${order.customerId}, Amount: ${order.amount}`);
+        const logFilePath = path.join(dataDir, 'activity.log');
+        fs.appendFileSync(logFilePath, JSON.stringify({ 
+          type: 'PAYMENT_SUCCESS', 
+          orderId, 
+          customerId: order.customerId, 
+          amount: order.amount, 
+          itemId: order.itemId,
+          itemType: order.itemType,
+          timestamp: new Date().toISOString() 
+        }) + '\n');
       } else {
         console.log(`[Webhook] Order ${orderId} was already processed (Idempotent).`);
       }
