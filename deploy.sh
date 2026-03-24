@@ -42,13 +42,11 @@ echo "----------------------------------------------------"
 echo "[5/5] 启动生产环境服务..."
 echo "----------------------------------------------------"
 
-# 1. 启动后端 Node.js 服务
-# 生产环境直接运行 server.js，性能更优
-pm2 start server.js --name $BACKEND_NAME
+# 1. 启动后端 Node.js 服务 (端口 3002)
+PORT=3002 pm2 start server.js --name $BACKEND_NAME
 
-# 2. 启动前端预览服务 (Vite Preview)
-# 使用 --host 0.0.0.0 允许外部访问，默认端口 4173
-pm2 start "npm run preview -- --host 0.0.0.0" --name $APP_NAME
+# 2. 启动前端预览服务 (端口 5174)
+pm2 start "npm run preview -- --host 0.0.0.0 --port 5174" --name $APP_NAME
 
 echo ""
 echo "===================================================="

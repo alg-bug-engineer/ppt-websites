@@ -5,16 +5,13 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   plugins: [vue()],
   server: {
-    host: '0.0.0.0', // 允许外部网络/Nginx反向代理访问
-    allowedHosts: [
-      'ppt.ai-knowledgepoints.cn'
-    ]
+    host: '0.0.0.0',
+    port: 5174, // 强制匹配 Nginx 配置的 5174
+    allowedHosts: true // 允许所有 Host 访问（由 Nginx 过滤）
   },
   preview: {
     host: '0.0.0.0',
-    port: 4173,
-    allowedHosts: [
-      'ppt.ai-knowledgepoints.cn'
-    ]
+    port: 5174,
+    allowedHosts: true
   }
 })
