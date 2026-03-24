@@ -24,6 +24,9 @@ paywith302-demo-main/
 *.suo
 *.ntvs*
 *.njsproj
+local_ppts
+scheme.json
+*silent_upload.py
 *.sln
 *.sw?
 

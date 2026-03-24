@@ -4,4 +4,10 @@ import vue from '@vitejs/plugin-vue'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue()],
+  server: {
+    host: '0.0.0.0', // 允许外部网络/Nginx反向代理访问
+    allowedHosts: [
+      'ppt.ai-knowledgepoints.cn'
+    ]
+  }
 })
