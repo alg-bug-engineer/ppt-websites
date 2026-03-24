@@ -9,5 +9,12 @@ export default defineConfig({
     allowedHosts: [
       'ppt.ai-knowledgepoints.cn'
     ]
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 4173,
+    allowedHosts: [
+      'ppt.ai-knowledgepoints.cn'
+    ]
   }
 })
